@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  svelte:
+    build: ./svelte
+    ports:
+      - "5173:5173"
+    depends_on:
+      - nodegql
+    networks:
+      - app-network
+
+  nodegql:
+    build: ./nodegql
+    ports:
+      - "9000:9000"
+    environment:
+      - MYSQL_HOST=mysql-db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=legalmatch
+    depends_on:
+      - mysql-db
+    networks:
+      - app-network
+
+  mysql-db:
+    image: mysql:8.0
+    volumes:
+      - data:/var/lib/mysql
+      - ./data:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: legalmatch
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+volumes:
+  data:
+
+networks:
+  app-network:
+    driver: bridge
